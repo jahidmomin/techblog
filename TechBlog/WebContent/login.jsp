@@ -1,3 +1,4 @@
+<%@page import="com.tech.blog.entities.Message"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
@@ -22,21 +23,36 @@
   			<div class="card-header text-primary text-center">
   				<h2><i class="fa fa-user-circle" aria-hidden="true"></i></h2>
   			</div>
+  			<%
+  				Message msg=(Message)session.getAttribute("msg");
+  				if(msg!=null){ %>
+  				
+  				<div class="alert <%=msg.getCssClass() %>" role="alert">
+  				  <%=msg.getContent() %>
+  				</div>
+  				
+  				<%
+  					session.removeAttribute("msg");
+  				}
+  			%>
   			<div class="card-body text-dark">
-  				<form>
+  				<form action="LoginServlet" method="post">
 				  <div class="mb-3">
 				    <label for="exampleInputEmail1" class="form-label">Email address</label>
-				    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+				    <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
 				    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
 				  </div>
 				  <div class="mb-3">
 				    <label for="exampleInputPassword1" class="form-label">Password</label>
-				    <input type="password" class="form-control" id="exampleInputPassword1">
+				    <input type="password" name="pass" class="form-control" id="exampleInputPassword1">
 				  </div>
-				  <button type="submit" class="btn btn-primary">Login</button>
+				  <div class="text-center mb-2">
+				  		<button type="submit" class="btn btn-primary">Login</button>
+				  </div>
 				</form>
 				<div class="border-top card-body text-center">New User ? <a href="register.jsp">Register now</a></div>
   			</div>
+  			
   		</div>
 	</div>
 	</div>
