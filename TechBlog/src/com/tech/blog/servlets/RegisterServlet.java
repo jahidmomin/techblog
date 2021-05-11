@@ -59,7 +59,7 @@ public class RegisterServlet extends HttpServlet {
 			if (dao.saveUser(user)) {
 				out.print("done");
 			}else {
-				out.print("error");
+				out.print("something went wrongs !");
 			}
 		}
 	}
