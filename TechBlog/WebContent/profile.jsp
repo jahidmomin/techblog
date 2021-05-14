@@ -1,3 +1,7 @@
+<%@page import="com.tech.blog.entities.Category"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.tech.blog.helper.ConnectionProvider"%>
+<%@page import="com.tech.blog.dao.PostDao"%>
 <%@page import="com.tech.blog.entities.Message"%>
 <%@page import="com.tech.blog.entities.User"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -14,6 +18,10 @@
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 <link href="css/styles.css" rel="stylesheet">
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<style>
+
+ </style>
 <%
 	User user = (User) session.getAttribute("user");
 	if (user == null) {
@@ -49,7 +57,11 @@
 							<li><a class="dropdown-item" href="#">Many more</a></li>
 						</ul></li>
 					<li class="nav-item"><a class="nav-link " href="#"
-						tabindex="-1">contact</a></li>
+						tabindex="-1">Contact</a>
+					</li>
+					<li class="nav-item" ><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#posts"
+						tabindex="-1"><i class="fas fa-plus"></i> Do Post</a>
+					</li>
 
 				</ul>
 				<ul class="navbar-nav mr-right">
@@ -165,6 +177,65 @@
 	</div>
 
 
+<!-- Add Posts Modal -->
+<!-- Modal -->
+<div class="modal fade" id="posts" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Posts</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="AddPostServlet" id="postform" method="post" enctype="multipart/form-data">
+        		   <div class="form-group mb-1">
+				     <select name="catid" class="form-control">
+				     	<option disabled selected>---Select Post Category----</option>
+				     	<%
+				     		PostDao dao=new PostDao(ConnectionProvider.getConnection());
+				     		ArrayList<Category> list=dao.getAllCategories();
+				     		for(Category c:list){%>
+				     			<option value="<%=c.getCid()%>"><%=c.getName() %></option>
+				     		<%}
+				     	%>
+				     </select>
+				  </div>
+				  <div class="form-group mb-1">
+				    <input type="text" name="title" class="form-control" id="post" aria-describedby="title"  placeholder="Enter Post Title">
+				  </div>
+				  <div class="form-group mb-1">
+				    <textarea class="form-control" name="content" style="height:200px" placeholder="Enter Post content"></textarea>
+				  </div>
+				  <div class="form-group mb-1">
+				    <textarea class="form-control" name="code" style="height:200px" placeholder="Enter Program Code/Snippets If Contain.."></textarea>
+				  </div>
+				  <div class="form-group mb-1">
+				  	<label class="form-label">Select Post Picture :</label>
+				    <input type="file" name="pic" class="form-control">
+				  </div>
+				  <div class="form-group text-center" id="loader" style="display: none">
+								<i class="fas fa-sync fa-spin fa-3x"></i>
+							<h4>Please wait ...</h4>
+					</div>
+				  <div class="text-center mb-2">
+				  		<button type="submit" class="btn btn-primary">Add Posts</button>
+				  </div>
+				</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
 
 	<script
 		src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"
@@ -194,5 +265,60 @@
 			})
 		})
 	</script>
+	
+	<script>
+		$(document).ready(function() {
+			console.log("ready")
+			
+			$("#postform").on('submit',function(e){
+				e.preventDefault();
+				let form=new FormData(this);
+				
+				$("#loader").show();
+				$("#sb-btn").hide();
+				
+				//send register servlet
+				$.ajax({
+					url:"AddPostServlet",
+					type:'POST',
+					data:form,
+					success:function(data,textStatus,jqXHR){
+						console.log(data);
+						$("#loader").hide();
+						$("#sb-btn").show();
+						
+						if(data.trim() === "done"){
+							swal({
+								  title: "Post Upload Successfully",
+								  text: "Welcome",
+								  icon: "success"
+								}).then(function(v){
+									//window.location="login.jsp";
+								});
+						}else{
+							swal(data);
+						}
+						
+						
+						
+					},
+					error:function(jqXHR,textStatus,err){
+						console.log(jqXHR);
+						$("#loader").hide();
+						$("#sb-btn").show();
+						swal({
+							  title: "Something Went Wrong ! Try Again",
+							  text: "Error",
+							  icon: "error"
+							})
+					},
+					processData:false,
+					contentType:false
+				});
+			})
+			
+		})
+	</script>
+	
 </body>
 </html>

@@ -89,7 +89,7 @@ public class EditServlet extends HttpServlet {
 
 	}
 
-	String extractFileName(Part part) {
+	public String extractFileName(Part part) {
 		String contentDisp = part.getHeader("content-disposition");
 		String[] items = contentDisp.split(";");
 		for (String s : items) {
