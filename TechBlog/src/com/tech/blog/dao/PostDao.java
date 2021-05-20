@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.tech.blog.entities.Category;
 import com.tech.blog.entities.Post;
@@ -66,4 +68,93 @@ public class PostDao {
 		return f;
 	}
 	
+	public List<Post> getAllPosts(){
+		List<Post> list=new ArrayList<Post>();
+		try {
+			String query="select * from posts order by id desc";
+			Statement st=this.con.createStatement();
+			ResultSet rs=st.executeQuery(query);
+			
+			while(rs.next()) {
+				int id=rs.getInt("id");
+				String title=rs.getString("title");
+				String content=rs.getString("content");
+				String code=rs.getString("code");
+				String pic=rs.getString("pic");
+				Timestamp crdate=rs.getTimestamp("crdate");
+				int catid=rs.getInt("catid");
+				int userid=rs.getInt("userid");
+				
+				Post p=new Post(id, title, content, code, pic, crdate, catid, userid);
+				list.add(p);
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	//getPostById
+	public List<Post> getPostById(int cid) {
+		System.out.println(cid);
+		List<Post> list=new ArrayList<Post>();
+		try {
+			String query="SELECT * FROM posts WHERE catid = ?";
+			
+			PreparedStatement ps=this.con.prepareStatement(query);
+			ps.setInt(1,cid);
+			ResultSet rs=ps.executeQuery();
+			
+			while(rs.next()) {
+				int id=rs.getInt("id");
+				String title=rs.getString("title");
+				String content=rs.getString("content");
+				String code=rs.getString("code");
+				String pic=rs.getString("pic");
+				Timestamp crdate=rs.getTimestamp("crdate");
+				int userid=rs.getInt("userid");
+
+				
+				Post p=new Post(id, title, content, code, pic, crdate, cid, userid);
+				list.add(p);
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return list;
+	
+	}
+	
+	public Post getPostByPostId(int Pid) {
+		Post post=null;
+		try {
+			String query="SELECT * FROM posts WHERE id = ?";
+			
+			PreparedStatement ps=this.con.prepareStatement(query);
+			ps.setInt(1,Pid);
+			ResultSet rs=ps.executeQuery();
+			
+			while(rs.next()) {
+				int id=rs.getInt("id");
+				String title=rs.getString("title");
+				String content=rs.getString("content");
+				String code=rs.getString("code");
+				String pic=rs.getString("pic");
+				Timestamp crdate=rs.getTimestamp("crdate");
+				int userid=rs.getInt("userid");
+				int cid=rs.getInt("catid");
+				
+				post=new Post(id, title, content, code, pic, crdate, cid, userid);
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return post;
+	}
 }

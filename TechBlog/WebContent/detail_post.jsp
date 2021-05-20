@@ -1,5 +1,10 @@
+<%@page import="com.tech.blog.dao.UserDao"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Date"%>
+<%@page import="com.tech.blog.entities.Post"%>
 <%@page import="com.tech.blog.entities.Category"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="java.util.concurrent.*"%>
 <%@page import="com.tech.blog.helper.ConnectionProvider"%>
 <%@page import="com.tech.blog.dao.PostDao"%>
 <%@page import="com.tech.blog.entities.Message"%>
@@ -7,11 +12,23 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@page errorPage="error.jsp"%>
+<%
+	User user = (User) session.getAttribute("user");
+	if (user == null) {
+		response.sendRedirect("login.jsp");
+	}
+	UserDao udao=new UserDao(ConnectionProvider.getConnection());
+	int id=Integer.parseInt(request.getParameter("id"));
+	PostDao dao1 = new PostDao(ConnectionProvider.getConnection());
+	Post post=dao1.getPostByPostId(id);
+	ArrayList<Category> cats = dao1.getAllCategories();
+	
+%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Profile | Account</title>
+<title><%=post.getTitle() %></title>
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
 	rel="stylesheet">
@@ -21,12 +38,10 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <style>
 </style>
-<%
-	User user = (User) session.getAttribute("user");
-	if (user == null) {
-		response.sendRedirect("login.jsp");
-	}
-%>
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v10.0" nonce="qzkziWc1"></script>
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v10.0" nonce="8VrQZnWx"></script>
 </head>
 <body>
 	<!-- Navbar -->
@@ -98,8 +113,6 @@
 						aria-current="true" onclick="getPosts(0,this)" id="m-link" onload="getPosts(0)">All Categories</button>
 
 					<%
-						PostDao dao1 = new PostDao(ConnectionProvider.getConnection());
-						ArrayList<Category> cats = dao1.getAllCategories();
 						for (Category c1 : cats) {
 					%>
 					<button href="#" onclick="getPosts(<%=c1.getCid() %>,this)" class="list-group-item list-group-item-action"><%=c1.getName() %></button>
@@ -109,9 +122,29 @@
 				</div>
 			</div>
 			<div class="col-md-8" id="postContainer">
-				<div class="container text-center mt-3" style="display:none;" id="loaderpost">
-							<i class="fas fa-sync fa-spin fa-2x"></i>
-							<h3 class="">Loading...</h3>
+				<!-- Details Post -->
+				<div class="card mb-3">
+				  <img src="blogpics/<%=post.getPic() %>" class="card-img-top" alt="...">
+				  <div class="card-body">
+				  	<p class="card-text fw-bold">
+					  		Uploaded by - <%=udao.getUserById(post.getUserid())%>
+					  </p>
+				    <h5 class="card-title"><%=post.getTitle() %></h5>
+				    <p class="card-text"><%=post.getContent() %></p>
+				     <p class="card-text">
+				     	<code class="bg-light p-3">
+				     		<%=post.getCode()%>
+				     	</code>
+				     </p>
+				    <p class="card-text"><small class="text-muted">posted on <%=post.getCrdate().toLocaleString().toString() %></small></p>
+				  </div>
+				  <div class="card-footer">
+				  	<a class="btn btn-outline-primary"><i class="fas fa-thumbs-up"></i></a>
+				  	<div class="container">
+				  	<div class="fb-like" data-href="http://localhost:8080/TechBlog/detail_post.jsp?id=<%=post.getId() %>" data-width="" data-layout="button_count" data-action="like" data-size="small" data-share="true"></div>
+				  		<div class="fb-comments" data-href="http://localhost:8080/TechBlog/detail_post.jsp?id=<%=post.getId() %>" data-width="" data-numposts="5"></div>
+				  	</div>
+				  </div>
 				</div>
 			</div>
 		</div>
@@ -266,11 +299,7 @@
 						</div>
 					</form>
 				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary">Save changes</button>
-				</div>
+				
 			</div>
 		</div>
 	</div>
@@ -388,11 +417,7 @@ function getPosts(catId,a){
 	});
 }
 
-		$(document).ready(function() {
-			console.log("ready")
-			let a=$('.list-group-item')[0];
-			getPosts(0,a)
-		})
+		
 	</script>
 </body>
 </html>

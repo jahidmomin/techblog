@@ -101,4 +101,22 @@ public class UserDao {
 
 	}
 	
+	public String getUserById(int id) { 
+		String name=null;
+		try {
+			String query="select * from user where id=?";
+			PreparedStatement pstmt=this.con.prepareStatement(query);
+			pstmt.setInt(1,id);
+			pstmt.executeQuery();
+			
+			ResultSet rs=pstmt.executeQuery();
+			if (rs.next()) {
+				name=rs.getString(2);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return name;
+	}
 }
